@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Industry Dev</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2300e5c0'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-size='20' fill='%2306060e'%3E&#9935;%3C/text%3E%3C/svg%3E">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#06060e;--surf:#0d0d18;--card:#12121e;--card2:#181826;--card3:#1e1e2e;--b0:rgba(255,255,255,0.05);--b1:rgba(255,255,255,0.09);--ac:#00e5c0;--ac2:#7b5ea7;--txt:#eeeef5;--mu:#7878a0;--fa:#2e2e45;--dn:#ff5252;--ok:#00e5c0;--wn:#f5a623;--dnb:rgba(255,82,82,0.1);--okb:rgba(0,229,192,0.1);--wnb:rgba(245,166,35,0.1);--dnbr:rgba(255,82,82,0.3);--okbr:rgba(0,229,192,0.3);--wnbr:rgba(245,166,35,0.3);--ag:rgba(0,229,192,0.08)}
+html,body{min-height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;background:var(--surf);border-bottom:1px solid var(--b0);position:sticky;top:0;z-index:10;gap:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;flex-shrink:0}
+.lbox{width:32px;height:32px;background:var(--ac);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lbox svg{width:18px;height:18px;fill:var(--bg)}
+.lname{font-size:14px;font-weight:600;letter-spacing:.3px}
+.lsub{font-size:9px;color:var(--mu);letter-spacing:1.5px;text-transform:uppercase}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.btn{padding:7px 13px;border-radius:7px;border:1px solid var(--b1);background:var(--card2);color:var(--txt);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--ac);color:var(--ac)}
+.bac{background:var(--ac)!important;color:var(--bg)!important;border-color:var(--ac)!important;font-weight:600}
+.bac:hover{opacity:.85!important}
+.bgh{background:transparent!important;border-color:var(--b1)!important}
+.bgh:hover{background:var(--card3)!important;color:var(--txt)!important}
+.bdn{border-color:var(--dnbr)!important;color:var(--dn)!important;background:transparent!important}
+.bdn:hover{background:var(--dnb)!important}
+.bok{border-color:var(--okbr)!important;color:var(--ok)!important;background:transparent!important}
+.bok:hover{background:var(--okb)!important}
+.bdg{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.bwarn{background:var(--wnb);color:var(--wn);border:1px solid var(--wnbr)}
+.bok2{background:var(--okb);color:var(--ok);border:1px solid var(--okbr)}
+.binfo{background:rgba(123,94,167,.15);color:#b39ddb;border:1px solid rgba(123,94,167,.3)}
+.bdn2{background:var(--dnb);color:var(--dn);border:1px solid var(--dnbr)}
+.bown{background:rgba(0,229,192,.15);color:var(--ac);border:1px solid rgba(0,229,192,.3)}
+.bhired{background:rgba(255,215,0,.1);color:#ffd700;border:1px solid rgba(255,215,0,.3)}
+.page{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:16px}
+.box{background:var(--card);border:1px solid var(--b0);border-radius:14px;padding:32px;width:100%;max-width:700px}
+.box h2{font-size:22px;font-weight:600;margin-bottom:6px}
+.sub{font-size:14px;color:var(--mu);margin-bottom:24px;line-height:1.7}
+.fld{margin-bottom:15px}
+.fld label{display:block;font-size:11px;color:var(--mu);margin-bottom:6px;letter-spacing:.6px;text-transform:uppercase;font-weight:500}
+.fld input,.fld textarea,.fld select{width:100%;padding:12px 14px;border:1px solid var(--b1);border-radius:8px;background:var(--surf);color:var(--txt);font-family:inherit;font-size:15px;outline:none;transition:border .15s}
+.fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--ac)}
+.fld textarea{min-height:150px;resize:vertical;line-height:1.7}
+.fld select{cursor:pointer}
+.pw-w{position:relative}
+.pw-w input{padding-right:42px}
+.eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--mu);cursor:pointer;font-size:14px;padding:2px}
+.eye:hover{color:var(--txt)}
+.err{background:var(--dnb);color:var(--dn);border:1px solid var(--dnbr);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:14px}
+.ok-msg{background:var(--okb);color:var(--ok);border:1px solid var(--okbr);border-radius:8px;padding:10px 13px;font-size:12px;margin-bottom:14px}
+.maint{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 58px);gap:14px;text-align:center;padding:40px}
+.maint h2{font-size:22px;font-weight:600}
+.maint p{font-size:14px;color:var(--mu);max-width:360px;line-height:1.8}
+.pulse{width:40px;height:2px;background:var(--ac);border-radius:2px;margin:8px auto;animation:pls 2s ease-in-out infinite}
+@keyframes pls{0%,100%{opacity:.3;width:20px}50%{opacity:1;width:50px}}
+.dash{padding:20px;display:flex;flex-direction:column;gap:16px}
+.ttabs{display:flex;border-bottom:1px solid var(--b0);overflow-x:auto}
+.ttab{padding:13px 18px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--mu);font-family:inherit;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500}
+.ttab:hover{color:var(--txt)}.ttab.on{color:var(--ac);border-bottom-color:var(--ac)}
+.tabs{display:flex;border-bottom:1px solid var(--b0);overflow-x:auto;margin-bottom:14px}
+.tab{padding:8px 14px;font-size:12px;cursor:pointer;border:none;background:none;color:var(--mu);font-family:inherit;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500}
+.tab:hover{color:var(--txt)}.tab.on{color:var(--ac);border-bottom-color:var(--ac)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:var(--card);border:1px solid var(--b0);border-radius:10px;padding:15px}
+.sn{font-size:28px;font-weight:600;line-height:1}
+.sl{font-size:10px;color:var(--mu);margin-top:5px;text-transform:uppercase;letter-spacing:.6px}
+.sw-row{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--b0);border-radius:8px;padding:9px 14px}
+.sw-row span{font-size:12px;color:var(--mu)}
+.sw{position:relative;width:38px;height:21px;cursor:pointer;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw-t{position:absolute;inset:0;border-radius:21px;background:var(--fa);transition:background .2s}
+.sw-h{position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:var(--txt);transition:left .2s}
+.sw input:checked+.sw-t{background:var(--ac)}.sw input:checked~.sw-h{left:20px}
+.clist{display:flex;flex-direction:column;gap:8px}
+.ccard{background:var(--card);border:1px solid var(--b0);border-radius:12px;padding:15px;display:flex;align-items:flex-start;gap:13px;transition:border-color .15s}
+.ccard:hover{border-color:var(--b1)}
+.av{width:42px;height:42px;border-radius:50%;background:rgba(123,94,167,.2);border:1px solid rgba(123,94,167,.25);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#b39ddb;flex-shrink:0}
+.ci{flex:1;min-width:0}
+.cn{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tnum{font-size:10px;color:var(--ac);background:rgba(0,229,192,.1);border:1px solid rgba(0,229,192,.2);border-radius:5px;padding:2px 7px;font-weight:600;font-family:monospace;letter-spacing:.5px}
+.ce{font-size:12px;color:var(--mu);margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cm{font-size:12px;color:var(--fa);margin-top:5px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.handled{font-size:10px;color:var(--mu);margin-top:5px;font-style:italic}
+.ca{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;align-items:flex-start}
+.arow{background:var(--card);border:1px solid var(--b0);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:13px;transition:border-color .15s}
+.arow:hover{border-color:var(--b1)}
+.ainfo{flex:1;min-width:0}
+.aname{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.apw{font-size:11px;color:var(--fa);font-family:monospace;margin-top:4px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.apw:hover{color:var(--mu)}
+.hlog{display:flex;flex-direction:column;gap:7px}
+.hrow{background:var(--card);border:1px solid var(--b0);border-radius:10px;padding:12px 15px;display:flex;align-items:flex-start;gap:12px}
+.hico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 58px)}
+.chat-h{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--surf);border-bottom:1px solid var(--b0)}
+.chat-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--fa) transparent}
+.msg{max-width:72%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6}
+.msg-me{background:var(--ac);color:var(--bg);align-self:flex-end;border-bottom-right-radius:4px;font-weight:500}
+.msg-th{background:var(--card2);border:1px solid var(--b1);align-self:flex-start;border-bottom-left-radius:4px}
+.mt{font-size:10px;color:var(--fa);margin-top:4px}.mtr{text-align:right}
+.chat-bar{display:flex;gap:8px;padding:12px 18px;background:var(--surf);border-top:1px solid var(--b0)}
+.cin{flex:1;padding:10px 13px;border:1px solid var(--b1);border-radius:8px;background:var(--card);color:var(--txt);font-family:inherit;font-size:13px;outline:none}
+.cin:focus{border-color:var(--ac)}
+.modal-bg{position:fixed;inset:0;background:rgba(6,6,14,.88);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;backdrop-filter:blur(3px)}
+.modal{background:var(--card);border:1px solid var(--b1);border-radius:14px;padding:26px;width:100%;max-width:380px}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:18px}
+.modal-act{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.gl{height:1px;background:linear-gradient(90deg,transparent,var(--ac),var(--ac2),transparent);opacity:.5;margin-bottom:18px}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--b0)}
+.set-row:last-child{border-bottom:none}
+.empty{text-align:center;padding:48px;color:var(--fa);font-size:13px}
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px}
+.spinner{width:36px;height:36px;border:2px solid var(--b1);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.portal-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.social-btn{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:7px;border:1px solid var(--b1);background:var(--card2);color:var(--txt);text-decoration:none;font-size:12px;font-weight:500;transition:all .15s}
+.roblox-btn:hover{border-color:#00b2ff;color:#00b2ff}
+.discord-btn:hover{border-color:#5865f2;color:#5865f2}
+.lang-sw{display:flex;gap:3px;background:var(--card);border:1px solid var(--b0);border-radius:6px;padding:3px}
+.lang-btn{padding:3px 8px;border-radius:4px;border:none;cursor:pointer;font-size:11px;font-weight:500;font-family:inherit;background:transparent;color:var(--mu);transition:all .15s}
+.lang-btn.on{background:var(--ac);color:var(--bg)}
+.footer{background:var(--surf);border-top:1px solid var(--b0);margin-top:auto}
+.footer-nav{display:flex;gap:0;border-bottom:1px solid var(--b0);overflow-x:auto;padding:0 24px}
+.footer-tab{padding:14px 20px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--mu);font-family:inherit;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500;transition:color .15s}
+.footer-tab:hover{color:var(--txt)}.footer-tab.on{color:var(--ac);border-bottom-color:var(--ac)}
+.footer-content{padding:32px 28px;max-width:820px;margin:0 auto}
+.footer-content h2{font-size:22px;font-weight:600;margin-bottom:8px;color:var(--txt)}
+.footer-content h3{font-size:15px;font-weight:600;margin:24px 0 8px;color:var(--ac)}
+.footer-content p{font-size:14px;color:var(--mu);line-height:1.9;margin-bottom:14px}
+.footer-lead{font-size:15px;color:var(--txt)!important;font-weight:400;line-height:1.9!important;margin-bottom:20px!important;border-left:3px solid var(--ac);padding-left:16px}
+.footer-badge{display:inline-flex;align-items:center;gap:6px;background:var(--ag);border:1px solid rgba(0,229,192,.2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--ac);font-weight:600;margin-bottom:20px;letter-spacing:.5px;text-transform:uppercase}
+.footer-step{display:flex;gap:14px;margin-bottom:18px;align-items:flex-start}
+.footer-step-num{width:28px;height:28px;border-radius:50%;background:var(--ac);color:var(--bg);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.footer-step-title{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.footer-step-desc{font-size:13px;color:var(--mu);line-height:1.7}
+.footer-rule{display:flex;gap:13px;align-items:flex-start;padding:13px 15px;background:var(--card);border:1px solid var(--b0);border-radius:10px;margin-bottom:10px}
+.footer-rule-ico{font-size:19px;flex-shrink:0;margin-top:1px}
+.footer-rule-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px}
+.footer-rule-desc{font-size:12px;color:var(--mu);line-height:1.7}
+.footer-bottom{text-align:center;padding:16px 24px;font-size:11px;color:var(--fa);border-top:1px solid var(--b0)}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.ccard{flex-wrap:wrap}.ca{width:100%;justify-content:flex-start}.box{padding:20px}.footer-content{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="loading-wrap"><div class="spinner"></div></div></div>
+<script>
+
+const FB={apiKey:"AIzaSyAcmEvCytSuqnREtI6dmD6Jq5RDqTKw6hk",authDomain:"game-industry-recrutement.firebaseapp.com",databaseURL:"https://game-industry-recrutement-default-rtdb.firebaseio.com",projectId:"game-industry-recrutement",storageBucket:"game-industry-recrutement.firebasestorage.app",messagingSenderId:"587412110815",appId:"1:587412110815:web:8b6e0683c9c90b4020186a"};
+const DEFAULT_OWNER={username:"owner",password:"GID@2024"};
+
+// TRANSLATIONS
+const T={
+en:{maintTitle:"Applications Closed",maintDesc:"Applications to join our studio are currently suspended. Check back soon for the next recruitment session!",formTitle:"Join the Studio",formDesc:"Passionate about the game industry? Submit your application and our team will review it carefully.",fn:"First Name",fnPh:"Your first name",em:"Email",emPh:"your@email.com",pf:"Portfolio / GitHub / Itch.io",mv:"Cover Letter",mvPh:"Describe your experience, skills, and why you want to join our studio...",role:"Role / Position",role_developer:"Developer",role_moderator:"Moderator",role_tester:"Tester",role_other:"Other",workspace:"Where to Work",ws_website:"Website",ws_discord:"Discord Server",ws_roblox:"Roblox Group",ws_game:"Game",sub:"Send my application",received:"Application received",rxTitle:"You're in! \uD83C\uDFAE",deviceOk:"This device is registered",deviceOkDesc:"You can access your full application history from this device at any time.",ticketNo:"Application #",rxDesc:"Our team will review your application. Come back from this device to track your status and message us.",mySpace:"My Space",newApp:"New Application",savedApps:"saved application",deviceKnown:"This device is recognized",noMsg:"No messages yet",msgPh:"Your message to the team...",send:"Send",back:"Back",logout:"Sign out",dashboard:"Dashboard",pubView:"Public View",maintenance:"Maintenance",open:"Open",owner:"Owner",settings:"Settings",candidates:"Candidates",admins:"Admins",history:"History",pending:"Pending",presel:"Pre-selected",hired:"Hired",rejected:"Rejected",closed:"Closed",total:"Total",noCandidate:"No candidates here",noAdmin:"No admins created",noHistory:"No actions recorded",motivation:"Cover Letter",portfolio:"Portfolio",appliedOn:"Applied on",updatedOn:"Updated on",handledBy:"Handled by",close:"Close ticket",preselect:"Pre-select",refuse:"Refuse",backToWait:"Back to pending",createAdmin:"Create Admin",editAdmin:"Edit Admin",username:"Username",password:"Password",leaveBlank:"Leave blank = unchanged",save:"Save",cancel:"Cancel",create:"Create",newUsername:"New username",currentPw:"Current password",newPw:"New password",myAccount:"My owner account",changeUsername:"Change username",changePw:"Change password",loginId:"Username",login:"Sign in",restrictedAccess:"Restricted Access",teamOnly:"For the Game Industry Dev team only",startConvo:"Start the conversation with",yourSpace:"Candidate Space",deviceRecognized:"Device recognized",yourApps:"Your applications",yourFile:"Your Application",messaging:"Messaging",hiringOutcome:"Officially part of the team!",closeNoSuite:"Close without follow-up",closeDesc:"Choose the final outcome. Permanent action.",bannedMsg:"This account has been suspended.",wrongCredentials:"Incorrect username or password.",fillFields:"Please fill in all required fields.",pwTooShort:"Password too short (min 4).",nameTaken:"This username is already taken.",incorrectPw:"Incorrect current password.",fillNewId:"Please enter a new username.",modifications:"Changes saved!",statusPending:"Under review",statusPending_desc:"Your application is being reviewed by our team. Thank you for your patience.",statusSelected:"Pre-selected",statusSelected_desc:"Congratulations! Your profile caught our attention. Our team will contact you soon.",statusHired:"Hired!",statusHired_desc:"Congratulations, you are officially part of the team!",statusRejected:"Not selected",statusRejected_desc:"Your application was not retained this time. We encourage you to reapply next session.",statusClosed:"Closed",statusClosed_desc:"This file has been closed by our team.",fab1:"About",fab2:"Process",fab3:"Rules"},
+fr:{maintTitle:"Candidatures ferm\u00e9es",maintDesc:"Les candidatures pour rejoindre notre studio sont actuellement suspendues. Revenez bient\u00f4t pour la prochaine session de recrutement\u00a0!",formTitle:"Rejoignez le studio",formDesc:"Vous \u00eates passionn\u00e9\u00b7e par l\u2019industrie du jeu vid\u00e9o\u00a0? Soumettez votre candidature et notre \u00e9quipe l\u2019examinera avec attention.",fn:"Pr\u00e9nom",fnPh:"Votre pr\u00e9nom",em:"Email",emPh:"votre@email.com",pf:"Portfolio / GitHub / Itch.io",mv:"Lettre de motivation",mvPh:"D\u00e9crivez votre exp\u00e9rience, vos comp\u00e9tences, et pourquoi vous souhaitez rejoindre notre studio...",role:"R\u00f4le / Poste",role_developer:"D\u00e9veloppeur",role_moderator:"Mod\u00e9rateur",role_tester:"Testeur",role_other:"Autre",workspace:"O\u00f9 travailler",ws_website:"Site web",ws_discord:"Serveur Discord",ws_roblox:"Groupe Roblox",ws_game:"Jeu",sub:"Envoyer ma candidature",received:"Candidature re\u00e7ue",rxTitle:"C\u2019est dans la bo\u00eete\u00a0! \uD83C\uDFAE",deviceOk:"Cet appareil est enregistr\u00e9",deviceOkDesc:"Vous pouvez acc\u00e9der \u00e0 tout votre historique depuis cet appareil \u00e0 tout moment.",ticketNo:"Dossier n\u00b0",rxDesc:"Notre \u00e9quipe examinera votre candidature. Revenez depuis cet appareil pour suivre l\u2019\u00e9tat de votre dossier.",mySpace:"Mon espace",newApp:"Nouvelle candidature",savedApps:"candidature enregistr\u00e9e",deviceKnown:"Cet appareil est reconnu",noMsg:"Aucun message pour l\u2019instant",msgPh:"Votre message \u00e0 l\u2019\u00e9quipe...",send:"Envoyer",back:"Retour",logout:"D\u00e9connexion",dashboard:"Dashboard",pubView:"Vue publique",maintenance:"Maintenance",open:"Ouvert",owner:"Propri\u00e9taire",settings:"Param\u00e8tres",candidates:"Candidatures",admins:"Admins",history:"Historique",pending:"En attente",presel:"Pr\u00e9s\u00e9lectionn\u00e9s",hired:"Recrut\u00e9s",rejected:"Refus\u00e9s",closed:"Cl\u00f4tur\u00e9s",total:"Total",noCandidate:"Aucun candidat ici",noAdmin:"Aucun admin cr\u00e9\u00e9",noHistory:"Aucune action enregistr\u00e9e",motivation:"Lettre de motivation",portfolio:"Portfolio",appliedOn:"Candidature du",updatedOn:"Mis \u00e0 jour le",handledBy:"Trait\u00e9 par",close:"Cl\u00f4turer",preselect:"Pr\u00e9s\u00e9lect.",refuse:"Refuser",backToWait:"En attente",createAdmin:"Cr\u00e9er un admin",editAdmin:"Modifier l\u2019admin",username:"Identifiant",password:"Mot de passe",leaveBlank:"Laisser vide = inchang\u00e9",save:"Sauvegarder",cancel:"Annuler",create:"Cr\u00e9er",newUsername:"Nouvel identifiant",currentPw:"Mot de passe actuel",newPw:"Nouveau mot de passe",myAccount:"Mon compte propri\u00e9taire",changeUsername:"Changer mon identifiant",changePw:"Changer mon mot de passe",loginId:"Identifiant",login:"Se connecter",restrictedAccess:"Acc\u00e8s restreint",teamOnly:"R\u00e9serv\u00e9 \u00e0 l\u2019\u00e9quipe Game Industry Dev",startConvo:"D\u00e9marrez la conversation avec",yourSpace:"Espace candidat",deviceRecognized:"Appareil reconnu",yourApps:"Vos candidatures",yourFile:"Votre dossier",messaging:"Messagerie",hiringOutcome:"Officiellement dans l\u2019\u00e9quipe\u00a0!",closeNoSuite:"Cl\u00f4turer sans suite",closeDesc:"Choisissez l\u2019issue finale. Action d\u00e9finitive.",bannedMsg:"Ce compte a \u00e9t\u00e9 suspendu.",wrongCredentials:"Identifiant ou mot de passe incorrect.",fillFields:"Merci de remplir les champs obligatoires.",pwTooShort:"Mot de passe trop court (4 min).",nameTaken:"Ce nom est d\u00e9j\u00e0 utilis\u00e9.",incorrectPw:"Mot de passe actuel incorrect.",fillNewId:"Remplissez le nouvel identifiant.",modifications:"Modifications enregistr\u00e9es\u00a0!",statusPending:"En cours d\u2019examen",statusPending_desc:"Votre candidature est en cours d\u2019examen par notre \u00e9quipe. Merci pour votre patience.",statusSelected:"Pr\u00e9s\u00e9lectionn\u00e9(e)",statusSelected_desc:"F\u00e9licitations\u00a0! Votre profil a retenu notre attention. Notre \u00e9quipe va vous contacter.",statusHired:"Recrut\u00e9(e)\u00a0!",statusHired_desc:"F\u00e9licitations, vous faites officiellement partie de l\u2019\u00e9quipe\u00a0!",statusRejected:"Non retenu(e)",statusRejected_desc:"Votre candidature n\u2019a pas \u00e9t\u00e9 retenue cette fois. Nous vous encourageons \u00e0 repostuler.",statusClosed:"Cl\u00f4tur\u00e9",statusClosed_desc:"Ce dossier a \u00e9t\u00e9 cl\u00f4tur\u00e9 par notre \u00e9quipe.",fab1:"A propos",fab2:"Processus",fab3:"R\u00e8gles"},
+es:{maintTitle:"Solicitudes cerradas",maintDesc:"Las solicitudes para unirse a nuestro estudio est\u00e1n suspendidas. \u00a1Vuelve pronto!",formTitle:"U\u00fanete al estudio",formDesc:"\u00bfApasionado por la industria del videojuego? Env\u00eda tu solicitud.",fn:"Nombre",fnPh:"Tu nombre",em:"Correo",emPh:"tu@correo.com",pf:"Portfolio / GitHub / Itch.io",mv:"Carta de motivaci\u00f3n",mvPh:"Describe tu experiencia y por qu\u00e9 quieres unirte...",role:"Rol",role_developer:"Desarrollador",role_moderator:"Moderador",role_tester:"Tester",role_other:"Otro",workspace:"D\u00f3nde trabajar",ws_website:"Sitio web",ws_discord:"Discord",ws_roblox:"Roblox",ws_game:"Juego",sub:"Enviar solicitud",received:"Solicitud recibida",rxTitle:"\u00a1Est\u00e1s dentro!",deviceOk:"Dispositivo registrado",deviceOkDesc:"Puedes acceder a tu historial desde este dispositivo.",ticketNo:"Expediente n\u00b0",rxDesc:"Nuestro equipo revisar\u00e1 tu solicitud.",mySpace:"Mi espacio",newApp:"Nueva solicitud",savedApps:"solicitud guardada",deviceKnown:"Dispositivo reconocido",noMsg:"Sin mensajes",msgPh:"Tu mensaje...",send:"Enviar",back:"Volver",logout:"Salir",dashboard:"Panel",pubView:"Vista p\u00fablica",maintenance:"Mantenimiento",open:"Abierto",owner:"Propietario",settings:"Ajustes",candidates:"Solicitudes",admins:"Admins",history:"Historial",pending:"Pendiente",presel:"Preseleccionado",hired:"Contratado",rejected:"Rechazado",closed:"Cerrado",total:"Total",noCandidate:"Sin solicitudes",noAdmin:"Sin admins",noHistory:"Sin historial",motivation:"Carta",portfolio:"Portfolio",appliedOn:"Solicitado el",updatedOn:"Actualizado el",handledBy:"Gestionado por",close:"Cerrar expediente",preselect:"Preseleccionar",refuse:"Rechazar",backToWait:"Pendiente",createAdmin:"Crear admin",editAdmin:"Editar admin",username:"Usuario",password:"Contrase\u00f1a",leaveBlank:"Vac\u00edo = sin cambio",save:"Guardar",cancel:"Cancelar",create:"Crear",newUsername:"Nuevo usuario",currentPw:"Contrase\u00f1a actual",newPw:"Nueva contrase\u00f1a",myAccount:"Mi cuenta",changeUsername:"Cambiar usuario",changePw:"Cambiar contrase\u00f1a",loginId:"Usuario",login:"Iniciar sesi\u00f3n",restrictedAccess:"Acceso restringido",teamOnly:"Solo para el equipo",startConvo:"Inicia la conversaci\u00f3n con",yourSpace:"Espacio candidato",deviceRecognized:"Dispositivo reconocido",yourApps:"Tus solicitudes",yourFile:"Tu expediente",messaging:"Mensajer\u00eda",hiringOutcome:"\u00a1Oficialmente en el equipo!",closeNoSuite:"Cerrar sin seguimiento",closeDesc:"Resultado final. Permanente.",bannedMsg:"Cuenta suspendida.",wrongCredentials:"Usuario o contrase\u00f1a incorrectos.",fillFields:"Rellena los campos obligatorios.",pwTooShort:"Contrase\u00f1a corta (m\u00edn 4).",nameTaken:"Nombre ya en uso.",incorrectPw:"Contrase\u00f1a actual incorrecta.",fillNewId:"Introduce el nuevo usuario.",modifications:"\u00a1Cambios guardados!",statusPending:"En revisi\u00f3n",statusPending_desc:"Tu solicitud est\u00e1 siendo revisada.",statusSelected:"Preseleccionado",statusSelected_desc:"\u00a1El equipo te contactar\u00e1!",statusHired:"\u00a1Contratado!",statusHired_desc:"\u00a1Eres parte del equipo!",statusRejected:"No seleccionado",statusRejected_desc:"No fuiste seleccionado esta vez.",statusClosed:"Cerrado",statusClosed_desc:"Expediente cerrado.",fab1:"Acerca de",fab2:"Proceso",fab3:"Reglas"},
+de:{maintTitle:"Bewerbungen geschlossen",maintDesc:"Bewerbungen sind derzeit ausgesetzt.",formTitle:"Tritt dem Studio bei",formDesc:"Bewirb dich jetzt!",fn:"Vorname",fnPh:"Dein Vorname",em:"E-Mail",emPh:"deine@email.de",pf:"Portfolio / GitHub",mv:"Anschreiben",mvPh:"Beschreibe dich...",role:"Rolle",role_developer:"Entwickler",role_moderator:"Moderator",role_tester:"Tester",role_other:"Andere",workspace:"Wo arbeiten",ws_website:"Webseite",ws_discord:"Discord",ws_roblox:"Roblox",ws_game:"Spiel",sub:"Bewerbung senden",received:"Erhalten",rxTitle:"Du bist dabei!",deviceOk:"Ger\u00e4t registriert",deviceOkDesc:"Du kannst jederzeit auf deinen Verlauf zugreifen.",ticketNo:"Bewerbung Nr.",rxDesc:"Wir pr\u00fcfen deine Bewerbung.",mySpace:"Mein Bereich",newApp:"Neue Bewerbung",savedApps:"Bewerbung gespeichert",deviceKnown:"Ger\u00e4t erkannt",noMsg:"Keine Nachrichten",msgPh:"Deine Nachricht...",send:"Senden",back:"Zur\u00fcck",logout:"Abmelden",dashboard:"Dashboard",pubView:"\u00d6ffentlich",maintenance:"Wartung",open:"Offen",owner:"Eigent\u00fcmer",settings:"Einstellungen",candidates:"Bewerbungen",admins:"Admins",history:"Verlauf",pending:"Ausstehend",presel:"Vorausgew\u00e4hlt",hired:"Eingestellt",rejected:"Abgelehnt",closed:"Geschlossen",total:"Gesamt",noCandidate:"Keine Bewerbungen",noAdmin:"Keine Admins",noHistory:"Kein Verlauf",motivation:"Anschreiben",portfolio:"Portfolio",appliedOn:"Beworben am",updatedOn:"Aktualisiert am",handledBy:"Bearbeitet von",close:"Schlie\u00dfen",preselect:"Vorausw\u00e4hlen",refuse:"Ablehnen",backToWait:"Ausstehend",createAdmin:"Admin erstellen",editAdmin:"Admin bearbeiten",username:"Benutzername",password:"Passwort",leaveBlank:"Leer = unver\u00e4ndert",save:"Speichern",cancel:"Abbrechen",create:"Erstellen",newUsername:"Neuer Benutzername",currentPw:"Aktuelles Passwort",newPw:"Neues Passwort",myAccount:"Mein Konto",changeUsername:"Benutzername \u00e4ndern",changePw:"Passwort \u00e4ndern",loginId:"Benutzername",login:"Anmelden",restrictedAccess:"Gesperrter Bereich",teamOnly:"Nur f\u00fcr das Team",startConvo:"Starte das Gespr\u00e4ch mit",yourSpace:"Kandidatenbereich",deviceRecognized:"Ger\u00e4t erkannt",yourApps:"Deine Bewerbungen",yourFile:"Deine Akte",messaging:"Nachrichten",hiringOutcome:"Offiziell im Team!",closeNoSuite:"Ohne R\u00fcckmeldung schlie\u00dfen",closeDesc:"Endg\u00fcltiges Ergebnis. Dauerhaft.",bannedMsg:"Konto gesperrt.",wrongCredentials:"Falscher Benutzername oder Passwort.",fillFields:"Pflichtfelder ausf\u00fcllen.",pwTooShort:"Passwort zu kurz (min 4).",nameTaken:"Name vergeben.",incorrectPw:"Falsches Passwort.",fillNewId:"Neuen Benutzernamen eingeben.",modifications:"\u00c4nderungen gespeichert!",statusPending:"Wird gepr\u00fcft",statusPending_desc:"Deine Bewerbung wird gepr\u00fcft.",statusSelected:"Vorausgew\u00e4hlt",statusSelected_desc:"Wir melden uns bald!",statusHired:"Eingestellt!",statusHired_desc:"Du bist offiziell im Team!",statusRejected:"Nicht ausgew\u00e4hlt",statusRejected_desc:"Diesmal nicht ausgew\u00e4hlt.",statusClosed:"Geschlossen",statusClosed_desc:"Akte geschlossen.",fab1:"\u00dcber uns",fab2:"Prozess",fab3:"Regeln"}
+};
+
+// STATE
+let S={
+  view:'loading',user:null,adminTab:'cands',candTab:'pending',
+  maintenance:false,candidates:{},admins:{},messages:{},history:[],
+  chatWith:null,chatInput:'',
+  form:{prenom:'',email:'',portfolio:'',motivation:'',role:'',workspace:'',devSpec:''},
+  submitted:false,submittedCandidate:null,
+  loginU:'',loginP:'',loginErr:'',
+  modal:null,lc:0,lt:null,flash:'',pwVisible:{},
+  portalActive:null,footerTab:'about',
+  lang:localStorage.getItem('gid_lang')||'fr',welcomeSeen:!!localStorage.getItem('gid_welcome'),neededRoles:{}
+};
+let db;
+function L(){return T[S.lang]||T.fr;}
+
+function getMyIds(){try{return JSON.parse(localStorage.getItem('gid_my_ids')||'[]')}catch(e){return[]}}
+function saveMyId(id){const ids=getMyIds();if(!ids.includes(id)){ids.push(id);localStorage.setItem('gid_my_ids',JSON.stringify(ids))}}
+function setLang(l){S.lang=l;localStorage.setItem('gid_lang',l);render()}
+
+async function validateSession(){
+  if(!S.user)return false;
+  try{
+    if(S.user.role==='owner'){
+      const snap=await db.ref('gid/owner').once('value');
+      const o=snap.val();
+      if(!o||o.username!==S.user.username){localStorage.removeItem('gid_admin');S.user=null;return false;}
+      return true;
+    }else{
+      const snap=await db.ref('gid/admins/'+S.user.id).once('value');
+      const a=snap.val();
+      if(!a||a.banned||a.username!==S.user.username){localStorage.removeItem('gid_admin');S.user=null;return false;}
+      return true;
+    }
+  }catch(e){return true;}
+}
+
+function init(){
+  try{const s=localStorage.getItem('gid_admin');if(s)S.user=JSON.parse(s)}catch(e){}
+  firebase.initializeApp(FB);
+  db=firebase.database();
+  db.ref('gid/owner').once('value').then(snap=>{if(!snap.exists()){db.ref('gid/owner').set(DEFAULT_OWNER);db.ref('gid/settings').set({maintenance:false,ticketCounter:0})}});
+  db.ref('gid/settings').on('value',d=>{
+    const v=d.val()||{};S.maintenance=v.maintenance||false;
+    if(S.view==='loading'){
+      if(S.user){validateSession().then(ok=>{S.view=ok?'dashboard':(getMyIds().length?'portal':'public');render()});}
+      else{S.view=getMyIds().length?'portal':'public';render();}
+    }else render();
+  });
+  db.ref('gid/admins').on('value',d=>{S.admins=d.val()||{};render()});
+  db.ref('gid/neededRoles').on('value',d=>{S.neededRoles=d.val()||{};render()});
+  db.ref('gid/candidates').on('value',d=>{S.candidates=d.val()||{};render()});
+  db.ref('gid/messages').on('value',d=>{S.messages=d.val()||{};render()});
+  db.ref('gid/history').on('value',d=>{const v=d.val()||{};S.history=Object.values(v).sort((a,b)=>b.at-a.at).slice(0,80);render()});
+}
+
+function ini(n){return(n||'?').trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?'}
+function ft(ts){return new Date(ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+function fd(ts){return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}
+function fds(ts){return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function cList(){return Object.values(S.candidates)}
+function aList(){return Object.values(S.admins)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function addHistory(action,extra){if(S.user)db.ref('gid/history/'+uid()).set({action,at:Date.now(),by:S.user.username||'system',...extra})}
+function lClick(){S.lc++;if(S.lt)clearTimeout(S.lt);if(S.lc>=3){S.lc=0;if(!S.user){S.view='login';S.loginErr='';render();}return}S.lt=setTimeout(()=>S.lc=0,900)}
+
+const ROLES={developer:'💻',moderator:'🛡️',tester:'🧪',other:'✨'};
+const WS={website:'🌐',discord:'💬',roblox:'🎮',game:'🕹️'};
+
+
+function socialBtns(){
+  return '<div style="display:flex;gap:6px">'
+    +'<a href="https://www.roblox.com/fr/communities/608404776/Mine-Industry-Community" target="_blank" rel="noopener" class="social-btn roblox-btn">'
+      +'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4.063 4L2 20l17.938-4.063L22 4zm9.5 11.25L9.75 14.5l.75-3.75 3.813.75z"/></svg>'
+      +'Roblox'
+    +'</a>'
+    +'<a href="https://discord.gg/zC7v88adW" target="_blank" rel="noopener" class="social-btn discord-btn">'
+      +'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.014.043.031.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>'
+      +'Discord'
+    +'</a>'
+  +'</div>';
+}
+
+function render(){
+  const app=document.getElementById('app');if(!app)return;
+  try{
+    let html='';
+    switch(S.view){
+      case 'loading':html='<div class="loading-wrap"><div class="spinner"></div></div>';break;
+      case 'login':html=rHdr()+rLogin();break;
+      case 'dashboard':html=rHdr()+rDash();break;
+      case 'chat':html=rHdr()+rChat();break;
+      case 'portal':html=rHdr()+rPortal();break;
+      default:html=rHdr()+rPublic()+rFooter();break;
+    }
+    app.innerHTML=html+(S.modal?rModal():'')+((!S.welcomeSeen&&S.view!=='loading')?rWelcome():'');
+    ['cmsg','portal-msgs'].forEach(id=>{const el=document.getElementById(id);if(el)el.scrollTop=el.scrollHeight});
+  }catch(e){console.error('Render error:',e);app.innerHTML='<div style="padding:40px;color:#ff5252;font-size:12px">Error: '+e.message+'</div>'}
+}
+
+function rHdr(){
+  const u=S.user,l=L();
+  const langs=['en','fr','es','de'];
+  const lsw='<div class="lang-sw">'+langs.map(x=>'<button class="lang-btn '+(S.lang===x?'on':'')+'" onclick="setLang(\''+x+'\')">'+x.toUpperCase()+'</button>').join('')+'</div>';
+  const st=S.maintenance?'<span class="bdg bwarn">\uD83D\uDD12 '+l.maintenance+'</span>':'<span class="bdg bok2">\uD83D\uDFE2 '+l.open+'</span>';
+  return '<div class="hdr">'
+    +'<div class="logo" onclick="lClick()">'
+      +'<div class="lbox"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5S14.67 12 15.5 12s1.5.67 1.5 1.5S16.33 15 15.5 15zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 10 18.5 10s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg></div>'
+      +'<div><div class="lname">Game Industry Dev</div><div class="lsub">Studio Recruitment</div></div>'
+    +'</div>'
+    +'<div class="hdr-r">'
+      +st
+      +(u?'<span class="bdg '+(u.role==='owner'?'bown':'binfo')+'">'+(u.role==='owner'?'\u26A1 ':'')+esc(u.username)+'</span>':'')
+      +(u?'<button class="btn bgh" onclick="goPublic()">'+l.pubView+'</button>':'')
+      +(u?'<button class="btn bgh" onclick="goDash()">'+l.dashboard+'</button>':'')
+      +(u?'<button class="btn bdn" onclick="logout()">'+l.logout+'</button>':'')
+      +(!u&&getMyIds().length?'<button class="btn bgh" onclick="S.view=\'portal\';render()">\uD83D\uDCC2 '+l.mySpace+'</button>':'')
+      +lsw
+      +socialBtns()
+    +'</div>'
+  +'</div>';
+}
+
+function rPublic(){
+  const l=L();
+  if(S.maintenance&&!S.user)return '<div class="maint"><div style="width:64px;height:64px;border-radius:50%;background:var(--wnb);border:1px solid var(--wnbr);display:flex;align-items:center;justify-content:center;margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="var(--wn)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div><h2>'+l.maintTitle+'</h2><div class="pulse"></div><p>'+l.maintDesc+'</p></div>';
+  if(S.submitted&&S.submittedCandidate){
+    const c=S.submittedCandidate;
+    return '<div class="page"><div class="box" style="text-align:center;padding:40px 28px;max-width:560px">'
+      +'<div style="width:56px;height:56px;border-radius:50%;background:var(--okb);border:1px solid var(--okbr);display:flex;align-items:center;justify-content:center;margin:0 auto 18px"><svg width="24" height="24" viewBox="0 0 24 24" fill="var(--ok)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>'
+      +'<div style="font-size:10px;color:var(--mu);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">'+l.received+'</div>'
+      +'<h2 style="font-size:20px;margin-bottom:20px">'+l.rxTitle+'</h2>'
+      +'<div style="background:var(--okb);border:1px solid var(--okbr);border-radius:10px;padding:14px 18px;margin-bottom:16px"><div style="font-size:13px;color:var(--ok);font-weight:500;margin-bottom:4px">\u2713 '+l.deviceOk+'</div><div style="font-size:12px;color:var(--mu)">'+l.deviceOkDesc+'</div></div>'
+      +'<div style="background:var(--card2);border:1px solid var(--b1);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:inline-block"><div style="font-size:10px;color:var(--mu);margin-bottom:4px">'+l.ticketNo+'</div><div style="font-family:monospace;font-size:28px;color:var(--ac);font-weight:700">#'+c.ticketNumber+'</div></div>'
+      +'<p style="font-size:13px;color:var(--mu);line-height:1.8;margin-bottom:20px">'+l.rxDesc+'</p>'
+      +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn bac" onclick="S.view=\'portal\';render()">\uD83D\uDCC2 '+l.mySpace+'</button><button class="btn bgh" onclick="S.submitted=false;S.submittedCandidate=null;S.form={prenom:\'\',email:\'\',portfolio:\'\',motivation:\'\',role:\'\',workspace:\'\'};render()">'+l.newApp+'</button></div>'
+    +'</div></div>';
+  }
+  const myIds=getMyIds(),myCands=cList().filter(c=>myIds.includes(c.id));
+  const banner=myCands.length?'<div style="background:var(--card2);border:1px solid var(--b1);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><div style="font-size:13px;font-weight:500">'+myCands.length+' '+l.savedApps+(myCands.length>1?'s':'')+'</div><div style="font-size:11px;color:var(--mu);margin-top:2px">'+l.deviceKnown+'</div></div><button class="btn bac" onclick="S.view=\'portal\';render()">\uD83D\uDCC2 '+l.mySpace+'</button></div>':'';
+  return '<div class="page"><div class="box">'
+    +'<h2>'+l.formTitle+'</h2><div class="sub">'+l.formDesc+'</div>'
+    +banner
+    +'<div class="fld"><label>'+l.fn+' *</label><input value="'+esc(S.form.prenom)+'" oninput="S.form.prenom=this.value" placeholder="'+l.fnPh+'"/></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+      +'<div class="fld" style="margin-bottom:0">'
+        +'<label>'+l.role+' *</label>'
+        +(Object.values(S.neededRoles).some(v=>v!==false)?'<div style="font-size:10px;color:var(--mu);margin-bottom:6px">✅ = poste recherché</div>':'')
+        +'<select oninput="S.form.role=this.value" style="width:100%;padding:12px 14px;border:1px solid var(--b1);border-radius:8px;background:var(--surf);color:'+(S.form.role?'var(--txt)':'var(--mu)')+';font-family:inherit;font-size:15px;outline:none;cursor:pointer">'
+          +'<option value="" disabled '+(S.form.role?'':'selected')+'>-- '+l.role+' --</option>'
+          +'<option value="developer" '+(S.form.role==='developer'?'selected':'')+'>'+(S.neededRoles.developer!==false?'✅ ':'')+'💻 '+l.role_developer+'</option>'
+          +'<option value="moderator" '+(S.form.role==='moderator'?'selected':'')+'>'+(S.neededRoles.moderator!==false?'✅ ':'')+'🛡️ '+l.role_moderator+'</option>'
+          +'<option value="tester" '+(S.form.role==='tester'?'selected':'')+'>'+(S.neededRoles.tester!==false?'✅ ':'')+'🧪 '+l.role_tester+'</option>'
+          +'<option value="other" '+(S.form.role==='other'?'selected':'')+'>'+(S.neededRoles.other!==false?'✅ ':'')+'✨ '+l.role_other+'</option>'
+        +'</select>'
+      +'</div>'
+      +'<div class="fld" style="margin-bottom:0"><label>'+l.workspace+' *</label>'
+        +'<select oninput="S.form.workspace=this.value" style="width:100%;padding:12px 14px;border:1px solid var(--b1);border-radius:8px;background:var(--surf);color:'+(S.form.workspace?'var(--txt)':'var(--mu)')+';font-family:inherit;font-size:15px;outline:none;cursor:pointer">'
+          +'<option value="" disabled '+(S.form.workspace?'':'selected')+'>-- '+l.workspace+' --</option>'
+          +'<option value="website" '+(S.form.workspace==='website'?'selected':'')+'>🌐 '+l.ws_website+'</option>'
+          +'<option value="discord" '+(S.form.workspace==='discord'?'selected':'')+'>💬 '+l.ws_discord+'</option>'
+          +'<option value="roblox" '+(S.form.workspace==='roblox'?'selected':'')+'>🎮 '+l.ws_roblox+'</option>'
+          +'<option value="game" '+(S.form.workspace==='game'?'selected':'')+'>🕹️ '+l.ws_game+'</option>'
+        +'</select>'
+      +'</div>'
+    +'</div>'
+    +(S.form.role==='developer'
+      ?'<div class="fld" style="margin-top:14px"><label>Spécialité *</label>'
+        +'<select oninput="S.form.devSpec=this.value" style="width:100%;padding:12px 14px;border:1px solid '+(S.form.devSpec?'var(--ac)':'var(--b1)')+';border-radius:8px;background:var(--surf);color:'+(S.form.devSpec?'var(--txt)':'var(--mu)')+';font-family:inherit;font-size:15px;outline:none;cursor:pointer">'
+          +'<option value="" disabled '+(S.form.devSpec?'':'selected')+'>-- Choisissez votre spécialité --</option>'
+          +'<option value="builder" '+(S.form.devSpec==='builder'?'selected':'')+'>🏗️ Builder</option>'
+          +'<option value="scripter" '+(S.form.devSpec==='scripter'?'selected':'')+'>💻 Scripter / Développeur</option>'
+          +'<option value="modelisateur" '+(S.form.devSpec==='modelisateur'?'selected':'')+'>🧊 Modélisateur 3D</option>'
+          +'<option value="animateur" '+(S.form.devSpec==='animateur'?'selected':'')+'>🎬 Animateur</option>'
+          +'<option value="ui" '+(S.form.devSpec==='ui'?'selected':'')+'>🎨 UI Designer</option>'
+        +'</select>'
+      +'</div>'
+      :'')
+    +'<div style="height:15px"></div>'
+    +'<div class="fld"><label>'+l.em+' *</label><input type="email" value="'+esc(S.form.email)+'" oninput="S.form.email=this.value" placeholder="'+l.emPh+'"/></div>'
+    +'<div class="fld"><label>'+l.pf+'</label><input value="'+esc(S.form.portfolio)+'" oninput="S.form.portfolio=this.value" placeholder="https://..."/></div>'
+    +'<div class="fld"><label>'+l.mv+' *</label><textarea oninput="S.form.motivation=this.value" placeholder="'+l.mvPh+'">'+esc(S.form.motivation)+'</textarea></div>'
+    +'<button class="btn bac" style="width:100%;padding:12px;font-size:14px" onclick="doSubmit()">'+l.sub+' \u2192</button>'
+  +'</div></div>';
+}
+
+function rFooter(){
+  const l=L();
+  const tabs=[['about','\u2139\uFE0F '+l.fab1],['process','\uD83D\uDCCB '+l.fab2],['rules','\uD83D\uDCDC '+l.fab3]];
+  const tabBar=tabs.map(([k,v])=>'<button class="footer-tab '+(S.footerTab===k?'on':'')+'" onclick="S.footerTab=\''+k+'\';render()">'+v+'</button>').join('');
+
+  let body='';
+  if(S.footerTab==='about'){
+    body='<div class="footer-badge">\uD83C\uDFAE Game Industry Dev &mdash; Studio ind\u00e9pendant</div>'
+      +'<p class="footer-lead">Game Industry Dev est un collectif cr\u00e9atif ind\u00e9pendant, compos\u00e9 de personnes passionn\u00e9es par l\u2019univers du jeu vid\u00e9o qui ont d\u00e9cid\u00e9, un jour, de cesser de jouer &mdash; et de commencer \u00e0 cr\u00e9er.</p>'
+      +'<p>Nous sommes une \u00e9quipe discr\u00e8te, soud\u00e9e, et profond\u00e9ment anim\u00e9e par une ambition commune\u00a0: concevoir des exp\u00e9riences ludiques qui laissent une empreinte durable. Sans tapage m\u00e9diatique, sans financement institutionnel &mdash; uniquement la force du collectif, la rigueur du travail bien fait, et l\u2019ardeur de ceux qui cr\u00e9ent par passion v\u00e9ritable.</p>'
+      +'<h3>\uD83D\uDEA7 Un projet en gestation</h3>'
+      +'<p>Notre jeu est actuellement en pleine phase de d\u00e9veloppement. C\u2019est la p\u00e9riode que nous affectionnons le plus\u00a0: tout reste \u00e0 \u00e9crire, tout reste \u00e0 bâtir. Chaque ligne de code, chaque mod\u00e8le, chaque m\u00e9canique de jeu est l\u2019expression d\u2019une vision collective en marche. Nous ne sommes pas press\u00e9s d\u2019aboutir &mdash; nous sommes exigeants sur la qualit\u00e9 de ce que nous livrerons.</p>'
+      +'<p>Nous op\u00e9rons \u00e9galement sur plusieurs plateformes en parall\u00e8le\u00a0: un <strong style="color:var(--ac)">groupe Roblox</strong> actif, un <strong style="color:var(--ac)">serveur Discord</strong> structur\u00e9, et un <strong style="color:var(--ac)">site web</strong> en constante \u00e9volution. Chacune de ces plateformes constitue un pilier de notre communaut\u00e9 grandissante.</p>'
+      +'<h3>\uD83D\uDC65 Qui sommes-nous\u00a0?</h3>'
+      +'<p>Nous ne recrutons pas des employ\u00e9s &mdash; nous accueillons des collaborateurs. Des individus qui partagent notre passion, notre rigueur, et notre d\u00e9sir de laisser quelque chose de durable dans le paysage du jeu vid\u00e9o ind\u00e9pendant. Si vous lisez ces lignes avec l\u2019envie d\u2019en faire partie, c\u2019est probablement parce que vous \u00eates l\u2019un d\u2019entre eux.</p>';
+  } else if(S.footerTab==='process'){
+    body='<p class="footer-lead">Le processus de s\u00e9lection a \u00e9t\u00e9 con\u00e7u pour \u00eatre \u00e0 la fois rigoureux dans ses exigences et humain dans son approche. Voici, \u00e9tape par \u00e9tape, ce qui vous attend si vous choisissez de vous porter candidat au sein de Game Industry Dev.</p>'
+      +step(1,'Soumission de votre candidature','Remplissez le formulaire de candidature ci-dessus avec le plus grand soin. Votre lettre de motivation est l\u2019\u00e9l\u00e9ment cl\u00e9 &mdash; c\u2019est elle qui nous permettra de vous conna\u00eetre v\u00e9ritablement, au-del\u00e0 de vos comp\u00e9tences techniques.')
+      +step(2,'Examen de votre dossier','Notre \u00e9quipe examinera votre candidature avec attention et bienveillance. Cette phase peut n\u00e9cessiter quelques jours. Vous pouvez suivre l\u2019\u00e9tat de votre dossier en temps r\u00e9el depuis votre espace personnel sur ce site.')
+      +step(3,'Notification et prise de contact','Si votre profil est retenu, vous en serez inform\u00e9 directement via la messagerie int\u00e9gr\u00e9e de votre espace candidat. Nous vous demanderons alors, si ce n\u2019est pas encore fait, de rejoindre notre groupe Roblox ainsi que notre serveur Discord.')
+      +step(4,'Int\u00e9gration dans l\u2019\u00e9quipe','Une fois votre int\u00e9gration valid\u00e9e, vous b\u00e9n\u00e9ficierez d\u2019un acc\u00e8s \u00e0 notre <strong>salon de travail priv\u00e9 sur Discord</strong>, con\u00e7u sp\u00e9cifiquement pour la coordination interne de l\u2019\u00e9quipe. C\u2019est l\u00e0 que l\u2019essentiel de notre activit\u00e9 se d\u00e9roule.')
+      +step(5,'T\u00e9l\u00e9travail & r\u00e9mun\u00e9ration','L\u2019int\u00e9gralit\u00e9 de nos collaborations s\u2019effectue en <strong>t\u00e9l\u00e9travail complet</strong>. Vous \u00eates libre d\u2019organiser votre emploi du temps comme vous l\u2019entendez, dans le strict respect des d\u00e9lais convenus. <strong style="color:var(--ac)">Tout travail fourni sera r\u00e9mun\u00e9r\u00e9.</strong> Les modalit\u00e9s de r\u00e9mun\u00e9ration seront d\u00e9finies individuellement lors de votre int\u00e9gration.');
+  } else {
+    body='<p class="footer-lead">Toute collaboration au sein de Game Industry Dev repose sur des fondations claires et des engagements mutuels. Ces r\u00e8gles ne sont pas de simples formalit\u00e9s &mdash; elles sont le socle de la confiance que nous nous accordons les uns aux autres.</p>'
+      +rule('\uD83D\uDD1E','Majorit\u00e9 requise &mdash; 18 ans minimum','En raison de la nature professionnelle de notre collaboration, des responsabilit\u00e9s qu\u2019elle implique et des engagements contractuels potentiels, tout candidat doit imp\u00e9rativement \u00eatre \u00e2g\u00e9 d\u2019au moins 18 ans au moment de sa candidature. Aucune d\u00e9rogation ne sera accord\u00e9e, quelles que soient les circonstances.')
+      +rule('\u2705','Ex\u00e9cution irr\u00e9prochable du travail demand\u00e9','Chaque membre de l\u2019\u00e9quipe s\u2019engage \u00e0 accomplir les t\u00e2ches qui lui sont confi\u00e9es dans les d\u00e9lais impartis, avec le niveau de qualit\u00e9 attendu. Un travail bâcl\u00e9, rendu en retard sans justification valable, ou simplement absent ne saurait \u00eatre tol\u00e9r\u00e9 au sein de ce collectif.')
+      +rule('\uD83E\uDD1D','Respect absolu & bienveillance','Notre collectif fonctionne sur la base d\u2019un respect mutuel sans condition. Tout comportement irrespectueux, discriminatoire, harcelant ou toxique &mdash; qu\u2019il se produise en public ou en priv\u00e9 &mdash; entra\u00eenera une exclusion imm\u00e9diate et d\u00e9finitive, sans recours possible.')
+      +rule('\uD83D\uDD12','Confidentialit\u00e9 stricte','Les informations internes, les projets en cours de d\u00e9veloppement, les \u00e9changes priv\u00e9s au sein de l\u2019\u00e9quipe et toute donn\u00e9e relative \u00e0 notre activit\u00e9 sont strictement confidentiels. Il est formellement interdit de les divulguer \u00e0 des tiers sans autorisation pr\u00e9alable et explicite de la direction.')
+      +rule('\uD83D\uDCF1','Pr\u00e9sence & r\u00e9activit\u00e9 raisonnables','Bien que le t\u00e9l\u00e9travail offre une grande autonomie dans l\u2019organisation du temps, nous attendons de chaque collaborateur une r\u00e9activit\u00e9 raisonnable sur les canaux de communication officiels, ainsi qu\u2019une pr\u00e9sence r\u00e9guli\u00e8re pour assurer la bonne marche collective des projets.')
+      +rule('\uD83C\uDF1F','Passion, engagement & loyaut\u00e9','Plus qu\u2019une comp\u00e9tence technique, nous recherchons un \u00e9tat d\u2019esprit. Nous valorisons les personnes impliqu\u00e9es, curieuses, loyales envers le projet et d\u00e9sireuses de contribuer \u00e0 quelque chose qui d\u00e9passe l\u2019ordinaire. L\u2019enthousiasme authentique vaut souvent plus que l\u2019expertise brute.');
+  }
+
+  return '<div class="footer"><div class="footer-nav">'+tabBar+'</div><div class="footer-content">'+body+'</div><div class="footer-bottom">&copy; 2025 Game Industry Dev &mdash; Studio ind\u00e9pendant &mdash; Tous droits r\u00e9serv\u00e9s</div></div>';
+}
+
+function step(n,title,desc){
+  return '<div class="footer-step"><div class="footer-step-num">'+n+'</div><div><div class="footer-step-title">'+title+'</div><div class="footer-step-desc">'+desc+'</div></div></div>';
+}
+function rule(ico,title,desc){
+  return '<div class="footer-rule"><div class="footer-rule-ico">'+ico+'</div><div><div class="footer-rule-title">'+title+'</div><div class="footer-rule-desc">'+desc+'</div></div></div>';
+}
+
+function rLogin(){
+  const l=L();
+  return '<div class="page"><div class="box" style="max-width:400px;position:relative">'
+    +'<button class="btn bgh" style="position:absolute;top:16px;right:16px;padding:4px 10px;font-size:11px" onclick="goPublic()">\u2715</button>'
+    +'<h2>'+l.restrictedAccess+'</h2><div class="sub">'+l.teamOnly+'</div>'
+    +(S.loginErr?'<div class="err">\u26A0 '+esc(S.loginErr)+'</div>':'')
+    +'<div class="fld"><label>'+l.loginId+'</label><input value="'+esc(S.loginU)+'" oninput="S.loginU=this.value" autocomplete="username"/></div>'
+    +'<div class="fld"><label>'+l.password+'</label><div class="pw-w"><input id="lpw" type="password" value="'+esc(S.loginP)+'" oninput="S.loginP=this.value" autocomplete="current-password" onkeydown="if(event.key===\'Enter\')doLogin()"/><button class="eye" onclick="tglPw(\'lpw\')">&#128065;</button></div></div>'
+    +'<button class="btn bac" style="width:100%;padding:11px;font-size:14px;margin-top:4px" onclick="doLogin()">'+l.login+' \u2192</button>'
+  +'</div></div>';
+}
+
+function rPortal(){
+  const l=L();
+  const myIds=getMyIds(),myCands=cList().filter(c=>myIds.includes(c.id)).sort((a,b)=>b.createdAt-a.createdAt);
+  if(!myCands.length){S.view='public';render();return '';}
+  const active=S.portalActive||myCands[0].id;
+  const c=myCands.find(x=>x.id===active)||myCands[0];
+  const msgs=S.messages[c.id]?Object.values(S.messages[c.id]).sort((a,b)=>a.ts-b.ts):[];
+  const stMap={pending:{bdg:'bwarn',ico:'\u23F3',label:l.statusPending,desc:l.statusPending_desc},selected:{bdg:'bok2',ico:'\uD83C\uDFAF',label:l.statusSelected,desc:l.statusSelected_desc},hired:{bdg:'bhired',ico:'\uD83C\uDFC6',label:l.statusHired,desc:l.statusHired_desc},rejected:{bdg:'bdn2',ico:'\u274C',label:l.statusRejected,desc:l.statusRejected_desc},closed:{bdg:'binfo',ico:'\uD83D\uDD12',label:l.statusClosed,desc:l.statusClosed_desc}};
+  const st=stMap[c.status]||stMap.pending;
+  const histTabs=myCands.map(x=>{const s2=stMap[x.status]||stMap.pending;return '<button class="tab '+(x.id===c.id?'on':'')+'" onclick="S.portalActive=\''+x.id+'\';render()" style="display:flex;align-items:center;gap:6px">'+s2.ico+' #'+x.ticketNumber+' <span style="font-size:10px;color:var(--mu)">'+fds(x.createdAt)+'</span></button>';}).join('');
+  const roleLabel=(ROLES[c.role]||'')+(l['role_'+c.role]||c.role||'-');
+  const wsLabel=(WS[c.workspace]||'')+(l['ws_'+c.workspace]||c.workspace||'-');
+  return '<div class="portal-wrap">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">'
+      +'<div><div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">'+l.yourSpace+' \u2014 '+l.deviceRecognized+' \u2713</div><h2 style="font-size:20px;font-weight:600">'+l.back+', '+esc(c.prenom)+' \uD83D\uDC4B</h2></div>'
+      +'<button class="btn bgh" onclick="S.view=\'public\';render()">\u2190 '+l.back+'</button>'
+    +'</div>'
+    +(myCands.length>1?'<div style="background:var(--card);border:1px solid var(--b0);border-radius:12px;padding:14px 16px;margin-bottom:14px"><div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">'+l.yourApps+' ('+myCands.length+')</div><div class="tabs" style="margin-bottom:0;border-bottom:none">'+histTabs+'</div></div>':'')
+    +'<div style="background:var(--card);border:1px solid var(--b0);border-radius:14px;padding:20px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">'
+      +'<div style="font-size:40px">'+st.ico+'</div>'
+      +'<div style="flex:1;min-width:180px">'
+        +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px"><span class="bdg '+st.bdg+'" style="font-size:12px;padding:5px 13px">'+st.label+'</span><span style="font-family:monospace;font-size:12px;color:var(--mu)">#'+c.ticketNumber+'</span></div>'
+        +'<p style="font-size:13px;color:var(--mu);line-height:1.6">'+st.desc+'</p>'
+        +(c.handledBy?'<div style="font-size:11px;color:var(--fa);margin-top:5px">'+l.updatedOn+' '+fd(c.handledAt)+'</div>':'')
+      +'</div>'
+    +'</div>'
+    +'<div style="background:var(--card);border:1px solid var(--b0);border-radius:14px;padding:18px;margin-bottom:14px">'
+      +'<div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">'+l.yourFile+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
+        +'<div style="background:var(--surf);border-radius:8px;padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">'+l.em+'</div><div style="font-size:13px">'+esc(c.email)+'</div></div>'
+        +'<div style="background:var(--surf);border-radius:8px;padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">'+l.appliedOn+'</div><div style="font-size:13px">'+fd(c.createdAt)+'</div></div>'
+        +'<div style="background:var(--surf);border-radius:8px;padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">'+l.role+'</div><div style="font-size:13px">'+roleLabel+'</div></div>'
+        +'<div style="background:var(--surf);border-radius:8px;padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">'+l.workspace+'</div><div style="font-size:13px">'+wsLabel+'</div></div>'
+      +'</div>'
+      +(c.portfolio?'<div style="background:var(--surf);border-radius:8px;padding:11px;margin-bottom:10px"><div style="font-size:10px;color:var(--mu);margin-bottom:3px">'+l.pf+'</div><a href="'+esc(c.portfolio)+'" target="_blank" rel="noopener" style="color:var(--ac);font-size:13px;text-decoration:none">'+esc(c.portfolio)+' \u2197</a></div>':'')
+      +'<div style="background:var(--surf);border-radius:8px;padding:11px"><div style="font-size:10px;color:var(--mu);margin-bottom:5px">'+l.mv+'</div><div style="font-size:13px;line-height:1.7">'+esc(c.motivation)+'</div></div>'
+    +'</div>'
+    +'<div style="background:var(--card);border:1px solid var(--b0);border-radius:14px;overflow:hidden">'
+      +'<div style="padding:14px 18px;border-bottom:1px solid var(--b0);font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px">\uD83D\uDCAC '+l.messaging+(msgs.length?' <span style="color:var(--ac)">('+msgs.length+')</span>':'')+'</div>'
+      +'<div style="min-height:120px;max-height:300px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg)" id="portal-msgs">'
+        +(msgs.length?msgs.map(m=>'<div><div class="msg '+(m.from==='admin'?'msg-th':'msg-me')+'">'+esc(m.text)+'</div><div class="mt '+(m.from!=='admin'?'mtr':'')+'">'+( m.from==='admin'?'Team GID':'Vous')+' \u00b7 '+ft(m.ts)+'</div></div>').join(''):'<div style="text-align:center;color:var(--fa);font-size:13px;padding:24px">'+l.noMsg+'</div>')
+      +'</div>'
+      +'<div style="display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--b0);background:var(--surf)">'
+        +'<input class="cin" id="portal-msg-input" placeholder="'+l.msgPh+'" value="'+esc(S.chatInput)+'" oninput="S.chatInput=this.value" onkeydown="if(event.key===\'Enter\')sendCandidateMsg(\''+c.id+'\')"/>'
+        +'<button class="btn bac" onclick="sendCandidateMsg(\''+c.id+'\')">'+l.send+'</button>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function rDash(){
+  const l=L();
+  if(!S.user)return rPublic();
+  const all=cList(),pend=all.filter(c=>c.status==='pending'),sel=all.filter(c=>c.status==='selected'),hired=all.filter(c=>c.status==='hired'),ref=all.filter(c=>c.status==='rejected'),closed=all.filter(c=>c.status==='closed');
+  const isOwner=S.user.role==='owner';
+  const topTabs=isOwner?[['cands',l.candidates],['admins',l.admins],['history',l.history],['settings',l.settings]]:[['cands',l.candidates],['history',l.history]];
+  let body='';
+  if(S.adminTab==='cands'){
+    const tabList={pending:pend,selected:sel,hired:hired,rejected:ref,closed:closed};
+    const list=(tabList[S.candTab]||pend).sort((a,b)=>b.createdAt-a.createdAt);
+    body='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">'
+      +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:16px;font-weight:600">'+l.candidates+'</span><span class="bdg '+(isOwner?'bown':'binfo')+'">'+(isOwner?'\u26A1 '+l.owner:esc(S.user.username))+'</span></div>'
+      +(isOwner?'<div class="sw-row"><span>'+(S.maintenance?'\uD83D\uDD12 '+l.maintenance:'\uD83D\uDFE2 '+l.open)+'</span><label class="sw"><input type="checkbox" '+(S.maintenance?'checked':'')+' onchange="toggleMaint(this.checked)"><div class="sw-t"></div><div class="sw-h"></div></label></div>':'')
+    +'</div>'
+    +'<div class="stats"><div class="stat"><div class="sn" style="color:var(--wn)">'+pend.length+'</div><div class="sl">'+l.pending+'</div></div><div class="stat"><div class="sn" style="color:var(--ok)">'+sel.length+'</div><div class="sl">'+l.presel+'</div></div><div class="stat"><div class="sn" style="color:#ffd700">'+hired.length+'</div><div class="sl">'+l.hired+'</div></div><div class="stat"><div class="sn">'+all.length+'</div><div class="sl">'+l.total+'</div></div></div>'
+    +'<div class="tabs"><button class="tab '+(S.candTab==='pending'?'on':'')+'" onclick="S.candTab=\'pending\';render()">'+l.pending+' ('+pend.length+')</button><button class="tab '+(S.candTab==='selected'?'on':'')+'" onclick="S.candTab=\'selected\';render()">'+l.presel+' ('+sel.length+')</button><button class="tab '+(S.candTab==='hired'?'on':'')+'" onclick="S.candTab=\'hired\';render()">'+l.hired+' ('+hired.length+')</button><button class="tab '+(S.candTab==='rejected'?'on':'')+'" onclick="S.candTab=\'rejected\';render()">'+l.rejected+' ('+ref.length+')</button><button class="tab '+(S.candTab==='closed'?'on':'')+'" onclick="S.candTab=\'closed\';render()">'+l.closed+' ('+closed.length+')</button></div>'
+    +'<div class="clist">'+(list.length?list.map(c=>rCCard(c)).join(''):'<div class="empty">'+l.noCandidate+'</div>')+'</div>';
+  } else if(S.adminTab==='admins'&&isOwner){
+    const admins=aList();
+    body='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px">'+l.admins+' ('+admins.length+')</span><button class="btn" style="background:rgba(123,94,167,.15);color:#b39ddb;border-color:rgba(123,94,167,.35)" onclick="openModal(\'new-admin\')">+ '+l.createAdmin+'</button></div>'
+    +'<div class="clist">'+(admins.length?admins.map(a=>rAdminRow(a)).join(''):'<div class="empty">'+l.noAdmin+'</div>')+'</div>';
+  } else if(S.adminTab==='history'){
+    body='<div style="font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">'+l.history+'</div><div class="hlog">'+(S.history.length?S.history.map(h=>rHRow(h)).join(''):'<div class="empty">'+l.noHistory+'</div>')+'</div>';
+  } else if(S.adminTab==='settings'&&isOwner){
+    body='<div class="box" style="max-width:100%">'+(S.flash?'<div class="ok-msg">'+esc(S.flash)+'</div>':'')+'<div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px">'+l.myAccount+'</div><div class="set-row"><div><div style="font-size:13px;font-weight:500">'+l.username+'</div></div><button class="btn bgh" onclick="openModal(\'edit-owner-user\')">&#9998; '+l.changeUsername+'</button></div><div class="set-row"><div><div style="font-size:13px;font-weight:500">'+l.password+'</div></div><button class="btn bgh" onclick="openModal(\'edit-owner-pw\')">&#9998; '+l.changePw+'</button></div></div>';
+  }
+  return '<div class="dash"><div class="gl"></div><div class="ttabs">'+topTabs.map(([k,v])=>'<button class="ttab '+(S.adminTab===k?'on':'')+'" onclick="S.adminTab=\''+k+'\';render()">'+v+'</button>').join('')+'</div><div style="margin-top:4px">'+body+'</div></div>';
+}
+
+function rCCard(c){
+  const l=L();
+  const mc=S.messages[c.id]?Object.values(S.messages[c.id]):[];
+  const ST={pending:'bwarn',selected:'bok2',hired:'bhired',rejected:'bdn2',closed:'binfo'};
+  const SL={pending:'\u23F3 '+l.pending,selected:'\uD83C\uDFAF '+l.presel,hired:'\uD83C\uDFC6 '+l.hired,rejected:'\u274C '+l.rejected,closed:'\uD83D\uDD12 '+l.closed};
+  const isClosed=c.status==='hired'||c.status==='closed';
+  const devSpecLabels={builder:'🏗️ Builder',scripter:'💻 Scripter',modelisateur:'🧊 Modélisateur',animateur:'🎬 Animateur',ui:'🎨 UI Designer'};
+  const roleText=(ROLES[c.role]||'')+' '+(l['role_'+c.role]||c.role)+(c.devSpec&&c.devSpec?' · '+(devSpecLabels[c.devSpec]||c.devSpec):'');
+  const roleBdg=c.role?'<span style="font-size:10px;background:rgba(123,94,167,.15);color:#b39ddb;border:1px solid rgba(123,94,167,.3);border-radius:5px;padding:2px 8px;font-weight:500">'+roleText+'</span>':'';
+  const wsBdg=c.workspace?'<span style="font-size:10px;background:rgba(0,229,192,.08);color:var(--ac);border:1px solid rgba(0,229,192,.2);border-radius:5px;padding:2px 8px;font-weight:500">'+(WS[c.workspace]||'')+' '+(l['ws_'+c.workspace]||c.workspace)+'</span>':'';
+  return '<div class="ccard"><div class="av">'+ini(c.prenom)+'</div>'
+    +'<div class="ci">'
+      +'<div class="cn">'+esc(c.prenom)+'<span class="tnum">#'+c.ticketNumber+'</span><span class="bdg '+(ST[c.status]||'bwarn')+'" style="font-size:9px">'+(SL[c.status]||l.pending)+'</span></div>'
+      +'<div class="ce">'+roleBdg+wsBdg+esc(c.email)+(c.portfolio?' <a href="'+esc(c.portfolio)+'" target="_blank" rel="noopener" style="color:var(--ac);font-size:11px;text-decoration:none">Portfolio \u2197</a>':'')+'</div>'
+      +'<div class="cm">'+esc(c.motivation)+'</div>'
+      +(c.handledBy?'<div class="handled">\u270E '+l.handledBy+' '+esc(c.handledBy)+' \u00b7 '+fds(c.handledAt)+'</div>':'')
+      +'<div style="font-size:10px;color:var(--fa);margin-top:3px">'+l.appliedOn+' '+fd(c.createdAt)+'</div>'
+    +'</div>'
+    +'<div class="ca">'
+      +'<button class="btn bgh" style="font-size:11px" onclick="openChat(\''+c.id+'\')">\uD83D\uDCAC'+(mc.length?' '+mc.length:'')+'</button>'
+      +(!isClosed&&c.status!=='selected'?'<button class="btn bok" style="font-size:11px" onclick="setStatus(\''+c.id+'\',\'selected\')">\uD83C\uDFAF '+l.preselect+'</button>':'')
+      +(!isClosed&&c.status!=='rejected'?'<button class="btn bdn" style="font-size:11px" onclick="setStatus(\''+c.id+'\',\'rejected\')">\u2715 '+l.refuse+'</button>':'')
+      +(!isClosed&&c.status!=='pending'?'<button class="btn bgh" style="font-size:11px" onclick="setStatus(\''+c.id+'\',\'pending\')">\u21A9</button>':'')
+      +(!isClosed?'<button class="btn" style="font-size:11px;background:rgba(0,229,192,.1);color:var(--ac);border-color:rgba(0,229,192,.3)" onclick="openModal(\'close-ticket\',\''+c.id+'\')">\uD83D\uDD12 '+l.close+'</button>':'')
+    +'</div></div>';
+}
+
+function rAdminRow(a){
+  const l=L();
+  const show=S.pwVisible[a.id];
+  return '<div class="arow"><div class="av" style="background:'+(a.banned?'rgba(255,82,82,.1)':'rgba(123,94,167,.2)')+';border-color:'+(a.banned?'var(--dnbr)':'rgba(123,94,167,.25)')+'"><span style="color:'+(a.banned?'var(--dn)':'#b39ddb')+'">'+ini(a.username)+'</span></div>'
+    +'<div class="ainfo"><div class="aname"><span '+(a.banned?'style="text-decoration:line-through;opacity:.5"':'')+'>'+esc(a.username)+'</span>'+(a.banned?'<span class="bdg bdn2">Banned</span>':'')+'</div>'
+    +'<div class="apw" onclick="S.pwVisible[\''+a.id+'\']=!S.pwVisible[\''+a.id+'\'];render()"><span>'+(show?esc(a.password):'&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;')+'</span><span>'+(show?'\uD83D\uDE48 Hide':'\uD83D\uDC41 Show')+'</span></div>'
+    +'<div style="font-size:10px;color:var(--fa);margin-top:3px">'+l.appliedOn+' '+fd(a.createdAt)+'</div></div>'
+    +'<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"><button class="btn bgh" style="font-size:11px" onclick="openModal(\'edit-admin\',\''+a.id+'\')">&#9998; Edit</button>'+(a.banned?'<button class="btn bok" style="font-size:11px" onclick="toggleBan(\''+a.id+'\',false)">Unban</button>':'<button class="btn bdn" style="font-size:11px" onclick="toggleBan(\''+a.id+'\',true)">Ban</button>')+'<button class="btn bdn" style="font-size:11px;padding:6px 9px" onclick="delAdmin(\''+a.id+'\')">\uD83D\uDDD1</button></div></div>';
+}
+
+const HICONS={candidate_submitted:{ico:'\uD83D\uDCE5',col:'var(--ac)'},candidate_selected:{ico:'\uD83C\uDFAF',col:'var(--ok)'},candidate_rejected:{ico:'\u274C',col:'var(--dn)'},candidate_pending:{ico:'\u21A9\uFE0F',col:'var(--wn)'},ticket_closed:{ico:'\uD83C\uDFC1',col:'var(--ac)'},admin_created:{ico:'\uD83D\uDC64',col:'#b39ddb'},admin_banned:{ico:'\uD83D\uDEAB',col:'var(--dn)'},admin_unbanned:{ico:'\u2705',col:'var(--ok)'},admin_deleted:{ico:'\uD83D\uDDD1',col:'var(--dn)'},message_sent:{ico:'\uD83D\uDCAC',col:'var(--ac)'},maintenance_on:{ico:'\uD83D\uDD12',col:'var(--wn)'},maintenance_off:{ico:'\uD83D\uDFE2',col:'var(--ok)'},owner_changed:{ico:'\u26A1',col:'var(--ac)'}};
+function rHRow(h){
+  const info=HICONS[h.action]||{ico:'\uD83D\uDCCB',col:'var(--mu)'};
+  const labels={candidate_submitted:()=>'New application from <strong>'+esc(h.name||'')+'</strong> \u2014 #'+(h.ticket||''),candidate_selected:()=>'<strong>'+esc(h.by)+'</strong> pre-selected <strong>'+esc(h.name||'')+'</strong> (#'+(h.ticket||'')+')',candidate_rejected:()=>'<strong>'+esc(h.by)+'</strong> rejected <strong>'+esc(h.name||'')+'</strong> (#'+(h.ticket||'')+')',candidate_pending:()=>'<strong>'+esc(h.by)+'</strong> moved <strong>'+esc(h.name||'')+'</strong> back to pending',ticket_closed:()=>'<strong>'+esc(h.by)+'</strong> closed <strong>'+esc(h.name||'')+'</strong> (#'+(h.ticket||'')+') \u2014 '+(h.outcome==='hired'?'\uD83C\uDFC6 Hired':'Closed'),admin_created:()=>'<strong>'+esc(h.by)+'</strong> created <strong>'+esc(h.target||'')+'</strong>',admin_banned:()=>'<strong>'+esc(h.by)+'</strong> banned <strong>'+esc(h.target||'')+'</strong>',admin_unbanned:()=>'<strong>'+esc(h.by)+'</strong> unbanned <strong>'+esc(h.target||'')+'</strong>',admin_deleted:()=>'<strong>'+esc(h.by)+'</strong> deleted <strong>'+esc(h.target||'')+'</strong>',message_sent:()=>'<strong>'+esc(h.by)+'</strong> sent a message to <strong>'+esc(h.name||'')+'</strong>',maintenance_on:()=>'<strong>'+esc(h.by)+'</strong> enabled maintenance',maintenance_off:()=>'<strong>'+esc(h.by)+'</strong> disabled maintenance',owner_changed:()=>'<strong>'+esc(h.by)+'</strong> changed owner settings'};
+  return '<div class="hrow"><div class="hico" style="background:'+info.col+'22;border:1px solid '+info.col+'44">'+info.ico+'</div><div style="flex:1"><div style="font-size:12px;line-height:1.5">'+(labels[h.action]?labels[h.action]():esc(h.action))+'</div><div style="font-size:10px;color:var(--fa);margin-top:3px">'+fd(h.at)+' '+ft(h.at)+'</div></div></div>';
+}
+
+function rChat(){
+  const l=L();
+  const c=S.candidates[S.chatWith];if(!c){goDash();return '';}
+  const msgs=S.messages[c.id]?Object.values(S.messages[c.id]).sort((a,b)=>a.ts-b.ts):[];
+  const ST={pending:'bwarn',selected:'bok2',hired:'bhired',rejected:'bdn2',closed:'binfo'};
+  const SL={pending:l.pending,selected:l.presel,hired:l.hired,rejected:l.rejected,closed:l.closed};
+  return '<div class="chat-wrap"><div class="chat-h"><button class="btn bgh" style="font-size:12px;padding:6px 12px" onclick="S.chatWith=null;S.view=\'dashboard\';render()">\u2190 '+l.back+'</button><div class="av" style="width:36px;height:36px;font-size:12px">'+ini(c.prenom)+'</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">'+esc(c.prenom)+' <span class="tnum">#'+c.ticketNumber+'</span></div><div style="font-size:11px;color:var(--mu)">'+esc(c.email)+'</div></div><span class="bdg '+(ST[c.status]||'bwarn')+'">'+(SL[c.status]||l.pending)+'</span></div>'
+    +'<div style="background:var(--card2);border-bottom:1px solid var(--b0);padding:12px 18px"><div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">'+l.mv+'</div><div style="font-size:13px;line-height:1.7;color:var(--txt)">'+esc(c.motivation)+'</div></div>'
+    +'<div class="chat-msgs" id="cmsg">'+(msgs.length?msgs.map(m=>'<div><div class="msg '+(m.from==='admin'?'msg-me':'msg-th')+'">'+esc(m.text)+'</div><div class="mt '+(m.from==='admin'?'mtr':'')+'">'+( m.from==='admin'?esc(m.sender||'Admin'):'Candidat')+' \u00b7 '+ft(m.ts)+'</div></div>').join(''):'<div style="margin:auto;color:var(--fa);font-size:13px;text-align:center;padding:32px">'+l.startConvo+' '+esc(c.prenom)+'</div>')+'</div>'
+    +'<div class="chat-bar"><input class="cin" id="chin" placeholder="'+l.msgPh+'" value="'+esc(S.chatInput)+'" oninput="S.chatInput=this.value" onkeydown="if(event.key===\'Enter\')sendAdminMsg()"/><button class="btn bac" onclick="sendAdminMsg()">'+l.send+'</button></div></div>';
+}
+
+function rWelcome(){
+  return '<div class="modal-bg" style="z-index:100;backdrop-filter:blur(8px)">'
+    +'<div class="modal" style="max-width:480px">'
+      +'<div style="text-align:center;margin-bottom:18px">'
+        +'<div style="font-size:36px;margin-bottom:8px">📋</div>'
+        +'<h3 style="font-size:18px;margin-bottom:6px">Bienvenue sur Game Industry Dev</h3>'
+        +'<div style="font-size:12px;color:var(--mu)">Merci de lire attentivement avant de continuer</div>'
+      +'</div>'
+      +'<div style="background:var(--card2);border:1px solid var(--b0);border-radius:10px;padding:16px;margin-bottom:16px;max-height:260px;overflow-y:auto;scrollbar-width:thin">'
+        +'<div style="font-size:13px;color:var(--txt);line-height:1.8">'
+          +'<div style="margin-bottom:10px;display:flex;gap:10px"><span style="color:var(--ac);flex-shrink:0">🔞</span><div><strong>18 ans minimum</strong> — Toute candidature implique un engagement professionnel. Les mineurs ne sont pas acceptés.</div></div>'
+          +'<div style="margin-bottom:10px;display:flex;gap:10px"><span style="color:var(--ac);flex-shrink:0">✅</span><div><strong>Travail sérieux requis</strong> — Chaque tâche confiée doit être accomplie avec rigueur dans les délais convenus.</div></div>'
+          +'<div style="margin-bottom:10px;display:flex;gap:10px"><span style="color:var(--ac);flex-shrink:0">🤝</span><div><strong>Respect mutuel</strong> — Aucun comportement toxique ou irrespectueux ne sera toléré.</div></div>'
+          +'<div style="margin-bottom:10px;display:flex;gap:10px"><span style="color:var(--ac);flex-shrink:0">🔒</span><div><strong>Confidentialité</strong> — Tout ce qui se passe au sein de l\'équipe reste confidentiel.</div></div>'
+          +'<div style="margin-bottom:10px;display:flex;gap:10px"><span style="color:var(--ac);flex-shrink:0">💻</span><div><strong>Télétravail complet</strong> — La coordination se fait via Discord. Tout travail est rémunéré.</div></div>'
+          +'<div style="display:flex;gap:10px"><span style="color:var(--ac);flex-shrink:0">🎮</span><div><strong>Passion avant tout</strong> — Nous construisons quelque chose de durable. Rejoignez-nous si vous partagez cette ambition.</div></div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="background:var(--wnb);border:1px solid var(--wnbr);border-radius:8px;padding:10px 13px;margin-bottom:16px;font-size:12px;color:var(--wn);display:flex;gap:8px;align-items:center">'
+        +'⚠️ En continuant, vous confirmez avoir lu et accepté ces conditions.'
+      +'</div>'
+      +'<button class="btn bac" style="width:100%;padding:11px;font-size:14px" onclick="dismissWelcome()">J\'ai lu et j\'accepte → Continuer</button>'
+    +'</div>'
+  +'</div>';
+}
+
+function dismissWelcome(){
+  localStorage.setItem('gid_welcome','1');
+  S.welcomeSeen=true;
+  render();
+}
+
+function rModal(){
+  const l=L(),m=S.modal;let inner='';
+  if(m.type==='new-admin'){inner='<h3>'+l.createAdmin+'</h3>'+(m.err?'<div class="err">'+esc(m.err)+'</div>':'')+'<div class="fld"><label>'+l.username+'</label><input id="m-u" value="'+esc(m.u||'')+'" oninput="S.modal.u=this.value" autocomplete="off"/></div><div class="fld"><label>'+l.password+'</label><div class="pw-w"><input id="m-p" type="password" value="'+esc(m.p||'')+'" oninput="S.modal.p=this.value" autocomplete="new-password"/><button class="eye" onclick="tglPw(\'m-p\')">&#128065;</button></div></div><div class="modal-act"><button class="btn bgh" onclick="closeModal()">'+l.cancel+'</button><button class="btn bac" onclick="createAdmin()">'+l.create+' \u2192</button></div>';}
+  else if(m.type==='edit-admin'){const a=S.admins[m.id]||{};inner='<h3>'+l.editAdmin+'</h3>'+(m.err?'<div class="err">'+esc(m.err)+'</div>':'')+(m.ok?'<div class="ok-msg">'+esc(m.ok)+'</div>':'')+'<div class="fld"><label>'+l.newUsername+'</label><input id="m-u" value="'+esc(m.u||a.username||'')+'" oninput="S.modal.u=this.value" autocomplete="off"/></div><div class="fld"><label>'+l.newPw+'</label><div class="pw-w"><input id="m-p" type="password" value="'+esc(m.p||'')+'" oninput="S.modal.p=this.value" placeholder="'+l.leaveBlank+'" autocomplete="new-password"/><button class="eye" onclick="tglPw(\'m-p\')">&#128065;</button></div></div><div class="modal-act"><button class="btn bgh" onclick="closeModal()">'+l.cancel+'</button><button class="btn bac" onclick="saveAdmin(\''+m.id+'\')">'+l.save+'</button></div>';}
+  else if(m.type==='close-ticket'){const c=S.candidates[m.id]||{};inner='<h3>\uD83D\uDD12 '+l.close+'</h3><p style="font-size:13px;color:var(--mu);margin-bottom:18px;line-height:1.6">'+l.closeDesc+'<br><strong>'+esc(c.prenom||'')+'</strong> (#'+(c.ticketNumber||'')+')</p><div style="display:flex;flex-direction:column;gap:10px"><button class="btn" style="padding:14px;font-size:13px;background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.3);color:#ffd700;text-align:left" onclick="closeTicket(\''+m.id+'\',\'hired\')"><div style="font-size:18px;margin-bottom:4px">\uD83C\uDFC6 '+l.hired+'</div><div style="font-size:11px;color:var(--mu)">'+l.hiringOutcome+'</div></button><button class="btn bdn" style="padding:14px;font-size:13px;text-align:left" onclick="closeTicket(\''+m.id+'\',\'closed\')"><div style="font-size:18px;margin-bottom:4px">\uD83D\uDD12 '+l.closeNoSuite+'</div></button></div><div class="modal-act"><button class="btn bgh" onclick="closeModal()">'+l.cancel+'</button></div>';}
+  else if(m.type==='edit-owner-user'){inner='<h3>'+l.changeUsername+'</h3>'+(m.err?'<div class="err">'+esc(m.err)+'</div>':'')+'<div class="fld"><label>'+l.newUsername+'</label><input id="m-u" value="'+esc(m.u||'')+'" oninput="S.modal.u=this.value" autocomplete="off"/></div><div class="fld"><label>'+l.currentPw+'</label><div class="pw-w"><input id="m-cp" type="password" value="'+esc(m.cp||'')+'" oninput="S.modal.cp=this.value" autocomplete="current-password"/><button class="eye" onclick="tglPw(\'m-cp\')">&#128065;</button></div></div><div class="modal-act"><button class="btn bgh" onclick="closeModal()">'+l.cancel+'</button><button class="btn bac" onclick="chOwnerUser()">'+l.save+'</button></div>';}
+  else if(m.type==='edit-owner-pw'){inner='<h3>'+l.changePw+'</h3>'+(m.err?'<div class="err">'+esc(m.err)+'</div>':'')+'<div class="fld"><label>'+l.currentPw+'</label><div class="pw-w"><input id="m-cp" type="password" value="'+esc(m.cp||'')+'" oninput="S.modal.cp=this.value" autocomplete="current-password"/><button class="eye" onclick="tglPw(\'m-cp\')">&#128065;</button></div></div><div class="fld"><label>'+l.newPw+'</label><div class="pw-w"><input id="m-np" type="password" value="'+esc(m.np||'')+'" oninput="S.modal.np=this.value" autocomplete="new-password"/><button class="eye" onclick="tglPw(\'m-np\')">&#128065;</button></div></div><div class="modal-act"><button class="btn bgh" onclick="closeModal()">'+l.cancel+'</button><button class="btn bac" onclick="chOwnerPw()">'+l.save+'</button></div>';}
+  return '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">'+inner+'</div></div>';
+}
+
+// ACTIONS
+function tglPw(id){const i=document.getElementById(id);if(i)i.type=i.type==='password'?'text':'password';}
+function openModal(type,id){S.modal={type,id,u:'',p:'',cp:'',np:'',err:'',ok:''};render();}
+function closeModal(){S.modal=null;render();}
+function goPublic(){S.view='public';S.chatWith=null;render();}
+function goDash(){S.view='dashboard';S.chatWith=null;render();}
+function logout(){localStorage.removeItem('gid_admin');S.user=null;S.view='public';S.chatWith=null;render();}
+function openChat(id){S.chatWith=id;S.view='chat';render();}
+
+async function doLogin(){
+  const l=L(),u=S.loginU.trim(),p=S.loginP.trim();
+  if(!u||!p){S.loginErr=l.fillFields;render();return;}
+  const snap=await db.ref('gid/owner').once('value'),owner=snap.val();
+  if(owner&&u===owner.username&&p===owner.password){S.user={role:'owner',username:u};localStorage.setItem('gid_admin',JSON.stringify(S.user));S.view='dashboard';S.loginErr='';render();return;}
+  const aSnap=await db.ref('gid/admins').once('value'),admins=aSnap.val()||{};
+  const adm=Object.values(admins).find(a=>a.username===u&&a.password===p);
+  if(adm){if(adm.banned){S.loginErr=l.bannedMsg;render();return;}S.user={role:'admin',username:u,id:adm.id};localStorage.setItem('gid_admin',JSON.stringify(S.user));S.view='dashboard';S.loginErr='';render();return;}
+  S.loginErr=l.wrongCredentials;render();
+}
+
+async function doSubmit(){
+  const l=L(),{prenom,email,motivation,role,workspace}=S.form;
+  if(!prenom.trim()||!email.trim()||!motivation.trim()||!role||!workspace||(role==='developer'&&!S.form.devSpec)){alert(l.fillFields);return;}
+  const ticketRef=db.ref('gid/settings/ticketCounter');
+  let ticketNum;
+  await ticketRef.transaction(cur=>{ticketNum=(cur||0)+1;return ticketNum;});
+  const id=uid();
+  const devSpec=S.form.devSpec||'';
+  const c={id,ticketNumber:ticketNum,prenom:prenom.trim(),email:email.trim(),portfolio:S.form.portfolio.trim(),motivation:motivation.trim(),role,workspace,devSpec,status:'pending',createdAt:Date.now(),handledBy:null,handledAt:null};
+  await db.ref('gid/candidates/'+id).set(c);
+  await db.ref('gid/history/'+uid()).set({action:'candidate_submitted',name:c.prenom,ticket:ticketNum,by:'candidate',at:Date.now()});
+  saveMyId(id);S.portalActive=id;S.submitted=true;S.submittedCandidate=c;render();
+}
+
+async function setStatus(id,st){
+  const c=S.candidates[id];if(!c)return;
+  const actions={selected:'candidate_selected',rejected:'candidate_rejected',pending:'candidate_pending'};
+  await db.ref('gid/candidates/'+id).update({status:st,handledBy:S.user.username,handledAt:Date.now()});
+  addHistory(actions[st],{name:c.prenom,ticket:c.ticketNumber});
+}
+
+async function closeTicket(id,outcome){
+  const c=S.candidates[id];if(!c)return;
+  await db.ref('gid/candidates/'+id).update({status:outcome,handledBy:S.user.username,handledAt:Date.now()});
+  addHistory('ticket_closed',{name:c.prenom,ticket:c.ticketNumber,outcome});
+  closeModal();
+}
+
+async function toggleMaint(val){
+  await db.ref('gid/settings/maintenance').set(val);
+  addHistory(val?'maintenance_on':'maintenance_off',{});
+}
+
+async function sendAdminMsg(){
+  const t=S.chatInput.trim();if(!t)return;
+  const c=S.candidates[S.chatWith];if(!c)return;
+  await db.ref('gid/messages/'+S.chatWith+'/'+uid()).set({from:'admin',text:t,ts:Date.now(),sender:S.user.username});
+  addHistory('message_sent',{name:c.prenom,ticket:c.ticketNumber});
+  S.chatInput='';render();
+}
+
+async function sendCandidateMsg(candidateId){
+  const t=S.chatInput.trim();if(!t)return;
+  await db.ref('gid/messages/'+candidateId+'/'+uid()).set({from:'candidate',text:t,ts:Date.now(),sender:'Candidat'});
+  S.chatInput='';render();
+}
+
+async function createAdmin(){
+  const l=L(),u=S.modal.u&&S.modal.u.trim(),p=S.modal.p&&S.modal.p.trim();
+  if(!u||!p){S.modal.err=l.fillFields;render();return;}
+  if(p.length<4){S.modal.err=l.pwTooShort;render();return;}
+  const snap=await db.ref('gid/admins').once('value');
+  if(Object.values(snap.val()||{}).find(a=>a.username===u)){S.modal.err=l.nameTaken;render();return;}
+  const id=uid();
+  await db.ref('gid/admins/'+id).set({id,username:u,password:p,banned:false,createdAt:Date.now()});
+  addHistory('admin_created',{target:u});closeModal();
+}
+
+async function saveAdmin(id){
+  const l=L(),a=S.admins[id];if(!a)return;
+  const u=S.modal.u&&S.modal.u.trim(),p=S.modal.p&&S.modal.p.trim();
+  if(u&&u!==a.username){const snap=await db.ref('gid/admins').once('value');if(Object.values(snap.val()||{}).find(x=>x.username===u&&x.id!==id)){S.modal.err=l.nameTaken;render();return;}}
+  const upd={};if(u)upd.username=u;if(p)upd.password=p;
+  await db.ref('gid/admins/'+id).update(upd);
+  S.modal.ok=l.modifications;S.modal.err='';render();
+}
+
+async function toggleBan(id,ban){
+  const a=S.admins[id];if(!a)return;
+  await db.ref('gid/admins/'+id+'/banned').set(ban);
+  addHistory(ban?'admin_banned':'admin_unbanned',{target:a.username});
+}
+
+async function delAdmin(id){
+  const a=S.admins[id];if(!a)return;
+  if(!confirm('Delete "'+a.username+'"?'))return;
+  await db.ref('gid/admins/'+id).remove();
+  addHistory('admin_deleted',{target:a.username});
+}
+
+async function chOwnerUser(){
+  const l=L(),u=S.modal.u&&S.modal.u.trim(),cp=S.modal.cp&&S.modal.cp.trim();
+  const snap=await db.ref('gid/owner').once('value'),owner=snap.val();
+  if(!owner||cp!==owner.password){S.modal.err=l.incorrectPw;render();return;}
+  if(!u){S.modal.err=l.fillNewId;render();return;}
+  await db.ref('gid/owner/username').set(u);
+  addHistory('owner_changed',{});
+  S.user={...S.user,username:u};localStorage.setItem('gid_admin',JSON.stringify(S.user));
+  S.flash=l.modifications;closeModal();
+  setTimeout(()=>{S.flash='';render();},3000);
+}
+
+async function toggleNeeded(key, val){
+  await db.ref('gid/neededRoles/'+key).set(val);
+  S.neededRoles[key]=val;
+}
+
+async function chOwnerPw(){
+  const l=L(),cp=S.modal.cp&&S.modal.cp.trim(),np=S.modal.np&&S.modal.np.trim();
+  const snap=await db.ref('gid/owner').once('value'),owner=snap.val();
+  if(!owner||cp!==owner.password){S.modal.err=l.incorrectPw;render();return;}
+  if(!np||np.length<4){S.modal.err=l.pwTooShort;render();return;}
+  await db.ref('gid/owner/password').set(np);
+  addHistory('owner_changed',{});
+  S.flash=l.modifications;closeModal();
+  setTimeout(()=>{S.flash='';render();},3000);
+}
+
+init();
+
+</script>
+</body>
+</html>
